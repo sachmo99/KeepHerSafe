@@ -318,7 +318,7 @@ public class LocationService extends Service {
                         model.decision = 1;
                         model.pulse = new Random().nextInt(60) + 60;
                         if(model.pulse < 65 || model.pulse>100){
-                            
+
                         }
                         model.prediction = 1;
                         model.latitude = location.getLatitude();

@@ -77,11 +77,12 @@ public class MainActivity extends AppCompatActivity {
 
         smsManager = SmsManager.getDefault();
         phoneNumbers = new ArrayList<>();
-        phoneNumbers.add("9491212790");
-        phoneNumbers.add("8374012004");
-        phoneNumbers.add("9985302688");
+//        phoneNumbers.add("");
+//        phoneNumbers.add("");
+//        phoneNumbers.add("");
+        //phoneNumbers.add("");
         for(int i = 0;i < phoneNumbers.size();i++){
-            smsManager.sendTextMessage(phoneNumbers.get(i),null,"HELP NEEDED!Location at LAT:" + myPref.getString("Latitude","0.00") + " Longitude:" + myPref.getString("Longitude","0.00"),null,null);
+            smsManager.sendTextMessage(phoneNumbers.get(i),null,"HELP NEEDED! http://www.google.com/maps/place/" + myPref.getString("Latitude","0.00") + "," + myPref.getString("Longitude","0.00"),null,null);
         }
 
     }
