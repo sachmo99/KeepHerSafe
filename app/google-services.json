@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "102226240232",
+    "firebase_url": "https://keephersafegpstrial-60c61.firebaseio.com",
+    "project_id": "keephersafegpstrial-60c61",
+    "storage_bucket": "keephersafegpstrial-60c61.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:102226240232:android:e97c768db12f64a791df5d",
+        "android_client_info": {
+          "package_name": "com.example.keephersafeGPStrial"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "102226240232-kvjqpg3qo19nrr280vsa3bfst0i0huiu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPUfNrHUMA1NuBN-SE21-bJnzauwVB6iw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "102226240232-kvjqpg3qo19nrr280vsa3bfst0i0huiu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

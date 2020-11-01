@@ -36,6 +36,8 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -73,6 +75,10 @@ public class LocationService extends Service {
     public Vector<Byte> packData = new Vector<>(2048);
     //private final IBinder mBinder = new LocationServiceBinder();
     private String macAddress;
+    FirebaseDatabase database;
+    DatabaseReference myRef;
+
+
     SharedPreferences latlongsaves;
 
     public LocationService() {
@@ -122,6 +128,10 @@ public class LocationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference("datapoints");
+
+
         /*Date curr = Calendar.getInstance().getTime();
         String input;
         if (intent == null) {
@@ -315,12 +325,9 @@ public class LocationService extends Service {
 
                     if (location != null) {
                         EntityModel model = new EntityModel();
-                        model.decision = 1;
-                        model.pulse = new Random().nextInt(60) + 60;
-                        if(model.pulse < 65 || model.pulse>100){
-
-                        }
                         model.prediction = 1;
+                        model.decision = 1;
+                        model.id = new Random().nextInt(1000);
                         model.latitude = location.getLatitude();
                         model.longitude = location.getLongitude();
                         latlongsaves = getApplicationContext().getSharedPreferences("MySharedPref",MODE_PRIVATE);
@@ -328,11 +335,19 @@ public class LocationService extends Service {
                         myEdit.putString("Latitude",String.valueOf(model.latitude));
                         myEdit.putString("Longitude",String.valueOf(model.longitude));
                         myEdit.commit();
+                        model.pulse = new Random().nextInt(60) + 60;
+                        if(model.pulse < 65 || model.pulse>100){
+                            startCoolDown(model);
+                        }else {
 
-                        dbManager.addDataPoint(model);
-                        Log.d("INSERTING NEW DATAPOINT:", model.pulse + "||" + model.latitude + "||" + model.longitude);
+                            String id = myRef.push().getKey();
+                            myRef.child(id).setValue(model);
+                            dbManager.addDataPoint(model);
+                            Log.d("INSERTING NEW DATAPOINT:", model.pulse + "||" + model.latitude + "||" + model.longitude);
 
-                        Toast.makeText(getApplicationContext(), String.valueOf(dbManager.getAllPointsCount()), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), String.valueOf(dbManager.getAllPointsCount()), Toast.LENGTH_LONG).show();
+                        }
+
                         //User user = ((UserClient)(getApplicationContext())).getUser();
                         //GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
                         // UserLocation userLocation = new UserLocation(user, geoPoint, null);
@@ -366,6 +381,33 @@ public class LocationService extends Service {
 //        }
 //
 //    }
+
+        public synchronized void  startCoolDown(EntityModel model) {
+            Log.d("LocationService","CoolDown Activated");
+            Intent intent = new Intent(this,DangerTrigger.class);
+            intent.putExtra("DataPoint",model);
+            PendingIntent inte = PendingIntent.getActivity(this,1,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+            if (Build.VERSION.SDK_INT >= 26) {
+                String CHANNEL_ID = "my_channel_02";
+                NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
+                        "My Channel_2",
+                        NotificationManager.IMPORTANCE_HIGH);
+
+                ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
+
+                Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                        .setContentIntent(inte)
+                        .setContentTitle("CoolDown Mode Activated ")
+                        .setContentText("Abnormal HeartRate detected.. Please click here to terminate SOS")
+                        .setSmallIcon(R.drawable.ic_baseline_warning_24)
+                        .build();
+
+                startForeground(2, notification);
+
+            }
+
+        }
+
 
         @Override
         public void onDestroy () {
