@@ -13,6 +13,7 @@ import android.bluetooth.BluetoothSocket;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -70,12 +71,15 @@ public class LocationService extends Service {
     public static String deviceName;
     public static BluetoothDevice sDevice = null;
     public Vector<Byte> packData = new Vector<>(2048);
-    private final IBinder mBinder = new LocationServiceBinder();
+    //private final IBinder mBinder = new LocationServiceBinder();
     private String macAddress;
+    SharedPreferences latlongsaves;
+
     public LocationService() {
     }
-    public void toast(String mess){
-        Toast.makeText(this,mess,Toast.LENGTH_SHORT).show();
+
+    public void toast(String mess) {
+        Toast.makeText(this, mess, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -134,50 +138,51 @@ public class LocationService extends Service {
                 .setContentIntent(pendingIntent)
                 .build();
         startForeground(1, notification);*/
-        Log.d("LocationService","onStartCommand: called");
+        Log.d("LocationService", "onStartCommand: called");
         macAddress = intent.getStringExtra("inputExtra");
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if(mBluetoothAdapter != null) {
+        if (mBluetoothAdapter != null) {
             //sDevice = mBluetoothAdapter.getRemoteDevice(macAddress);
             //deviceName = sDevice.getName();
-            Toast.makeText(this,"Connecting to device:",Toast.LENGTH_SHORT).show();
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    connectToDevice("34:F6:4B:7F:69:B6");
+            Toast.makeText(this, "Connecting to device:", Toast.LENGTH_SHORT).show();
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    connectToDevice("34:F6:4B:7F:69:B6");
+//                }
+//            }).start();
+//        }
+        }
+            getLocation();
+            String deviceg = intent.getStringExtra("bluetooth_device");
+
+            return START_NOT_STICKY;
+        }
+        private synchronized void connectToDevice (String macAddress){
+            BluetoothDevice myPC = mBluetoothAdapter.getRemoteDevice(macAddress);
+            Log.d("ConnectToDevice:", myPC.getName() + ":" + myPC.getBluetoothClass());
+            BluetoothSocket btSocket = null;
+            int counter = 0;
+            do {
+                try {
+                    btSocket = myPC.createRfcommSocketToServiceRecord(UUID.fromString(SPP_UUID));
+                    Log.d("ConnectToDevice:", "||" + btSocket);
+                    btSocket.connect();
+                    Log.d("ConnectedToDevice:", "||" + btSocket.isConnected());
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            }).start();
-        }
-        getLocation();
-        String deviceg = intent.getStringExtra("bluetooth_device");
-
-        return START_NOT_STICKY;
-    }
-    private synchronized  void connectToDevice(String macAddress){
-        BluetoothDevice myPC = mBluetoothAdapter.getRemoteDevice(macAddress);
-        Log.d("ConnectToDevice:",myPC.getName() + ":" + myPC.getBluetoothClass());
-        BluetoothSocket btSocket = null;
-        int counter = 0;
-        do {
-            try {
-                btSocket = myPC.createRfcommSocketToServiceRecord(UUID.fromString(SPP_UUID));
-                Log.d("ConnectToDevice:","||" + btSocket);
-                btSocket.connect();
-                Log.d("ConnectedToDevice:","||" + btSocket.isConnected());
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
+                counter++;
+            } while (!btSocket.isConnected() && counter < 3);
+            if (counter >= 3) {
+                //toast("Unable to connect to BL");
+                Log.d("BluetoothFailure:", "cannot connect to the device");
             }
-            counter++;
-        }while(!btSocket.isConnected()&& counter < 3);
-        if(counter >= 3){
-            //toast("Unable to connect to BL");
-            Log.d("BluetoothFailure:","cannot connect to the device");
+
+
         }
-
-
-    }
     /*private synchronized void connectToDevice(String macAddress){
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macAddress);
         if(mState == STATE_CONNECTING){
@@ -290,45 +295,53 @@ public class LocationService extends Service {
 
     }*/
 
-    private void getLocation(){
-        LocationRequest mLocationRequestHighAccuracy = new LocationRequest();
-        mLocationRequestHighAccuracy.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequestHighAccuracy.setInterval(4000);
-        mLocationRequestHighAccuracy.setFastestInterval(2000);
+        private void getLocation () {
+            LocationRequest mLocationRequestHighAccuracy = new LocationRequest();
+            mLocationRequestHighAccuracy.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            mLocationRequestHighAccuracy.setInterval(4000);
+            mLocationRequestHighAccuracy.setFastestInterval(2000);
 
-        if(ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
-            Log.d("Location Service","getLocation: stopping the location service");
-            stopSelf();
-            return;
-        }
-        Log.d("LocationService","getLocation: getting Location information.");
-        locationProviderClient.requestLocationUpdates(mLocationRequestHighAccuracy,new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                Log.d("LocationService","onLocationResult: got location result");
-                Location location = locationResult.getLastLocation();
-
-                if (location != null) {
-                    EntityModel model = new EntityModel();
-                    model.decision = 1;
-                    model.pulse = new Random().nextInt(120);
-                    model.prediction = 1;
-                    model.latitude = location.getLatitude();
-                    model.longitude = location.getLongitude();
-
-                    dbManager.addDataPoint(model);
-                    Log.d("INSERTING NEW DATAPOINT:",model.pulse +"||" +  model.latitude + "||" + model.longitude);
-
-                    Toast.makeText(getApplicationContext(),String.valueOf(dbManager.getAllPointsCount()),Toast.LENGTH_LONG).show();
-                    //User user = ((UserClient)(getApplicationContext())).getUser();
-                    //GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
-                   // UserLocation userLocation = new UserLocation(user, geoPoint, null);
-                    //saveUserLocation(userLocation);
-                }
-                //super.onLocationResult(locationResult);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Log.d("Location Service", "getLocation: stopping the location service");
+                stopSelf();
+                return;
             }
-        }, Looper.myLooper());
-    }
+            Log.d("LocationService", "getLocation: getting Location information.");
+            locationProviderClient.requestLocationUpdates(mLocationRequestHighAccuracy, new LocationCallback() {
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    Log.d("LocationService", "onLocationResult: got location result");
+                    Location location = locationResult.getLastLocation();
+
+                    if (location != null) {
+                        EntityModel model = new EntityModel();
+                        model.decision = 1;
+                        model.pulse = new Random().nextInt(60) + 60;
+                        if(model.pulse < 65 || model.pulse>100){
+                            
+                        }
+                        model.prediction = 1;
+                        model.latitude = location.getLatitude();
+                        model.longitude = location.getLongitude();
+                        latlongsaves = getApplicationContext().getSharedPreferences("MySharedPref",MODE_PRIVATE);
+                        SharedPreferences.Editor myEdit = latlongsaves.edit();
+                        myEdit.putString("Latitude",String.valueOf(model.latitude));
+                        myEdit.putString("Longitude",String.valueOf(model.longitude));
+                        myEdit.commit();
+
+                        dbManager.addDataPoint(model);
+                        Log.d("INSERTING NEW DATAPOINT:", model.pulse + "||" + model.latitude + "||" + model.longitude);
+
+                        Toast.makeText(getApplicationContext(), String.valueOf(dbManager.getAllPointsCount()), Toast.LENGTH_LONG).show();
+                        //User user = ((UserClient)(getApplicationContext())).getUser();
+                        //GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
+                        // UserLocation userLocation = new UserLocation(user, geoPoint, null);
+                        //saveUserLocation(userLocation);
+                    }
+                    //super.onLocationResult(locationResult);
+                }
+            }, Looper.myLooper());
+        }
 //    private void saveUserLocation(final UserLocation userLocation){
 //
 //        try{
@@ -354,87 +367,88 @@ public class LocationService extends Service {
 //
 //    }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mlocationManager != null) {
-            try {
-                mlocationManager.removeUpdates(mLocationListener);
-            } catch (Exception e) {
-                Log.i(TAG, "failed to remove location listener, ignore ", e);
+        @Override
+        public void onDestroy () {
+            super.onDestroy();
+            if (mlocationManager != null) {
+                try {
+                    mlocationManager.removeUpdates(mLocationListener);
+                } catch (Exception e) {
+                    Log.i(TAG, "failed to remove location listener, ignore ", e);
+                }
+            }
+            if (mBluetoothAdapter.isEnabled()) {
+                mBluetoothAdapter.disable();
             }
         }
-        if(mBluetoothAdapter.isEnabled()){
-            mBluetoothAdapter.disable();
+
+        private void initializeLocationManager () {
+            if (mlocationManager == null) {
+                mlocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+            }
         }
-    }
 
-    private void initializeLocationManager() {
-        if (mlocationManager == null) {
-            mlocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        public void startTracking () {
+            initializeLocationManager();
+            mLocationListener = new LocationListener(LocationManager.GPS_PROVIDER);
+
+            try {
+
+                mlocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE, mLocationListener);
+            } catch (SecurityException e) {
+
+            } catch (IllegalArgumentException e) {
+
+            }
         }
-    }
-
-    public void startTracking() {
-        initializeLocationManager();
-        mLocationListener = new LocationListener(LocationManager.GPS_PROVIDER);
-
-        try {
-
-            mlocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE, mLocationListener);
-        }catch( SecurityException e){
-
-        }catch(IllegalArgumentException e){
-
-        }
-    }
-     public void stopTracking() {
-        onDestroy();
-     }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        //throw new UnsupportedOperationException("Not yet implemented");
-        mHandler = ((App)getApplication()).getHandler();
-    return binder;
-    }
-
-    private class LocationListener implements android.location.LocationListener{
-        private Location lastLocation = null;
-        private final String TAG = "LocationListener";
-        private Location mLastLocation;
-        public LocationListener( String provider){
-            mLastLocation = new Location(provider);
+        public void stopTracking () {
+            onDestroy();
         }
 
         @Override
-        public void onLocationChanged(Location location) {
-            mLastLocation = location;
-            Log.i(TAG,"LocationChanged:" + location);
+        public IBinder onBind (Intent intent){
+            // TODO: Return the communication channel to the service.
+            //throw new UnsupportedOperationException("Not yet implemented");
+            mHandler = ((App) getApplication()).getHandler();
+            return binder;
         }
 
-        @Override
-        public void onStatusChanged(String s, int i, Bundle bundle) {
-            Log.e(TAG, "onStatusChanged: " + s);
-        }
+        private class LocationListener implements android.location.LocationListener {
+            private Location lastLocation = null;
+            private final String TAG = "LocationListener";
+            private Location mLastLocation;
 
-        @Override
-        public void onProviderEnabled(String s) {
-            Log.e(TAG, "onProviderEnabled: " + s);
-        }
+            public LocationListener(String provider) {
+                mLastLocation = new Location(provider);
+            }
 
-        @Override
-        public void onProviderDisabled(String s) {
-            Log.e(TAG, "onProviderDisabled: " + s);
+            @Override
+            public void onLocationChanged(Location location) {
+                mLastLocation = location;
+                Log.i(TAG, "LocationChanged:" + location);
+            }
 
+            @Override
+            public void onStatusChanged(String s, int i, Bundle bundle) {
+                Log.e(TAG, "onStatusChanged: " + s);
+            }
+
+            @Override
+            public void onProviderEnabled(String s) {
+                Log.e(TAG, "onProviderEnabled: " + s);
+            }
+
+            @Override
+            public void onProviderDisabled(String s) {
+                Log.e(TAG, "onProviderDisabled: " + s);
+
+            }
         }
-    }
-    public class LocationServiceBinder extends Binder {
-        public LocationService getService() {
-            return LocationService.this;
+        public class LocationServiceBinder extends Binder {
+            public LocationService getService() {
+                return LocationService.this;
+            }
         }
-    }
 
    /* private class ConnectThread extends Thread {
         private final BluetoothSocket mmSocket;
@@ -578,4 +592,5 @@ public class LocationService extends Service {
     };*/
 
 
-}
+    }
+
