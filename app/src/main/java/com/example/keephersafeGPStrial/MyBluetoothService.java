@@ -140,8 +140,8 @@ public class MyBluetoothService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Toast.makeText(this,"OnDestroy",
-                Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this,"OnDestroy",
+//                Toast.LENGTH_SHORT).show();
 
 
 //        stopThread = true;
@@ -181,7 +181,7 @@ public class MyBluetoothService extends Service {
             {
                 if(iterator.getAddress().equals(DEVICE_ADDRESS))
                 {
-                    Toast.makeText(getApplicationContext(),iterator.getAddress(),Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getApplicationContext(),iterator.getAddress(),Toast.LENGTH_SHORT).show();
                     device=iterator;
 
                     found=true;
