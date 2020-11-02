@@ -61,7 +61,6 @@ public class DBManager extends SQLiteOpenHelper {
     private static DBManager sInstance;
     private Context context;
 
-    // ...
 
     public static synchronized DBManager getInstance(Context context) {
         // Use the application context, which will ensure that you

@@ -149,20 +149,8 @@ public class LocationService extends Service {
                 .build();
         startForeground(1, notification);*/
         Log.d("LocationService", "onStartCommand: called");
-        macAddress = intent.getStringExtra("inputExtra");
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (mBluetoothAdapter != null) {
-            //sDevice = mBluetoothAdapter.getRemoteDevice(macAddress);
-            //deviceName = sDevice.getName();
-            Toast.makeText(this, "Connecting to device:", Toast.LENGTH_SHORT).show();
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    connectToDevice("34:F6:4B:7F:69:B6");
-//                }
-//            }).start();
-//        }
-        }
+
+
             getLocation();
             String deviceg = intent.getStringExtra("bluetooth_device");
 
