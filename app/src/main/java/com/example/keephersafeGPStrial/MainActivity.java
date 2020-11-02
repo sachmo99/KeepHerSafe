@@ -57,9 +57,9 @@ public class MainActivity extends AppCompatActivity {
         sendSOS = findViewById(R.id.SOSbutton);
         hearrateTV = findViewById(R.id.hearrateTV);
         avgHRV = findViewById(R.id.avgHRV);
-        simpleSwitch = (Switch) findViewById(R.id.simpleSwitch);
+        simpleSwitch = findViewById(R.id.simpleSwitch);
 
-        hrvs = new ArrayList<Double>(Collections.<Double>nCopies(10, 0.0));
+        hrvs = new ArrayList (Collections.nCopies(10, 0.0));
 
 
 
@@ -82,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-
         Intent i=new Intent(this,  MyBluetoothService.class);
         startService(i);
 
@@ -104,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
         }
 
         Intent i=new Intent(this,  MyBluetoothService.class);
