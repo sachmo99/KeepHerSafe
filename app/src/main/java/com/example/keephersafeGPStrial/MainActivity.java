@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+
         Intent i=new Intent(this,  MyBluetoothService.class);
         startService(i);
 
@@ -103,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
         }
 
         Intent i=new Intent(this,  MyBluetoothService.class);

@@ -65,8 +65,8 @@ public class MyBluetoothService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags,
                               int startId) {
-//        Toast.makeText(this,"onStartCommand",
-//                Toast.LENGTH_SHORT).show();
+        Toast.makeText(this,"onStartCommand",
+                Toast.LENGTH_SHORT).show();
 
         if(BTinit())
         {

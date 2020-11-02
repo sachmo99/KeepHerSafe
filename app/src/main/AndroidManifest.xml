@@ -20,6 +20,12 @@
         <activity android:name=".RegisterActivity" />
         <activity android:name=".MainActivity" />
 
+
+        <service
+            android:name=".MyBluetoothService"
+            android:enabled="true"
+            android:exported="true" />
+
         <service
             android:name=".LocationService"
             android:enabled="true"
