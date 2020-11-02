@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#BD8E01"
+    android:gravity="center_horizontal"
+    tools:context=".RegisterActivity">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="127dp"
+        android:layout_marginTop="30dp"
+        app:srcCompat="@drawable/logo"/>
+
+    <EditText
+        android:id="@+id/edittext_username"
+        android:layout_width="300dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="10dp"
+        android:paddingLeft="2dp"
+        android:background="@drawable/style"
+        android:drawableLeft="@drawable/username"
+        android:hint="@string/username"/>
+
+    <EditText
+        android:id="@+id/edittext_password"
+        android:layout_width="300dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/style"
+        android:drawableLeft="@drawable/password"
+        android:hint="@string/password"/>
+
+    <EditText
+        android:id="@+id/edit_text_height"
+        android:layout_width="300dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/style"
+        android:drawableLeft="@drawable/username"
+        android:hint="Height" />
+
+    <EditText
+        android:id="@+id/edit_text_weight"
+        android:layout_width="300dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/style"
+        android:drawableLeft="@drawable/username"
+        android:hint="  Weight"/>
+
+    <EditText
+        android:id="@+id/edit_text_age"
+        android:layout_width="300dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/style"
+        android:drawableLeft="@drawable/username"
+        android:hint="  Age"/>
+
+    <EditText
+        android:id="@+id/edit_text_emg1"
+        android:layout_width="300dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/style"
+        android:drawableLeft="@drawable/username"
+        android:hint="  Emergency Contact 1"/>
+
+    <EditText
+        android:id="@+id/edit_text_emg2"
+        android:layout_width="300dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/style"
+        android:drawableLeft="@drawable/username"
+        android:hint="  Emergency Contact 2"/>
+
+    <Button
+        android:id="@+id/buttonRegister"
+        android:layout_width="206dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="20dp"
+        android:background="#18287A"
+        android:textColor="#ffffff"
+        android:text="@string/register"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:textColor="#ffffff"
+            android:text="@string/already_registered"/>
+
+        <TextView
+            android:id="@+id/textviewLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:paddingLeft="10dp"
+            android:textStyle="bold"
+            android:textColor="#18287A"
+            android:textSize="16sp"
+            android:text="@string/login"/>
+
+    </LinearLayout>
+
+</LinearLayout>
+
