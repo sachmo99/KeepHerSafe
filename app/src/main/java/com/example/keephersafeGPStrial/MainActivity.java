@@ -27,16 +27,21 @@ import android.widget.Toast;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
     private EditText editText;
-    TextView hearrateTV;
+    TextView hearrateTV,avgHRV;
     private BluetoothAdapter mBluetoothAdapter;
     ArrayList<String> phoneNumbers;
     SmsManager smsManager;
     SharedPreferences myPref;
     private Button sendSOS;
     Switch simpleSwitch;
+    ArrayList<Double> hrvs;
+    double hrv;
+    int hrIndex = 0;
 
 
     public void toast(String mess) {
@@ -51,8 +56,10 @@ public class MainActivity extends AppCompatActivity {
 
         sendSOS = findViewById(R.id.SOSbutton);
         hearrateTV = findViewById(R.id.hearrateTV);
-
+        avgHRV = findViewById(R.id.avgHRV);
         simpleSwitch = (Switch) findViewById(R.id.simpleSwitch);
+
+        hrvs = new ArrayList<Double>(Collections.<Double>nCopies(10, 0.0));
 
 
 
@@ -68,8 +75,11 @@ public class MainActivity extends AppCompatActivity {
         {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(intent,1);
-
-
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         Intent i=new Intent(this,  MyBluetoothService.class);
@@ -79,15 +89,30 @@ public class MainActivity extends AppCompatActivity {
         ServiceToActivity serviceReceiver = new ServiceToActivity();
         IntentFilter intentSFilter = new IntentFilter("ServiceToActivityAction");
         registerReceiver(serviceReceiver, intentSFilter);
-
-
     }
 
 
-//    public void stopBtService(View view) {
-//        Intent i=new Intent(this,  MyBluetoothService.class);
-//        stopService(i);
-//    }
+    public void startBtService(View view) {
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if(!bluetoothAdapter.isEnabled())
+        {
+            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(intent,1);
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        Intent i=new Intent(this,  MyBluetoothService.class);
+        startService(i);
+    }
+
+    public boolean isEmergency(double hrv){
+        return !(hrv >=63 && hrv <= 87);
+    }
 
     public class ServiceToActivity extends BroadcastReceiver
     {
@@ -101,11 +126,36 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-            hearrateTV.setText(newData);
-            if(simpleSwitch.isChecked())
-            {
-                toast("I am checked");
+
+
+            String[]  data = newData.split(";");
+
+            if(data[0].equals("datapoint")){
+                hrv = Double.parseDouble(data[1]);
+                hearrateTV.setText("Heart Rate Detected " + hrv);
+
+                if(isEmergency(hrv) && !simpleSwitch.isChecked()){
+                    sendManualSOS();
+                }
+
+                if(simpleSwitch.isChecked())
+                {
+                    hrvs.set(hrIndex , Double.parseDouble(data[1]));
+                    hrIndex = (hrIndex + 1) % hrvs.size();
+
+                    double tot = 0;
+                    for(double d : hrvs){
+                        tot += d;
+                    }
+
+
+                    avgHRV.setText("Average Heart Rate Calibrated " + tot/hrvs.size()  + " " + tot  + "\n" + hrvs.toString() + " " + data[2]);
+
+//                    toast(hrvs.toString());
+                }
             }
+
+
 
         }
     }
@@ -135,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
         phoneNumbers = new ArrayList<>();
         phoneNumbers.add("9246465080");
         for(int i = 0;i < phoneNumbers.size();i++){
-            smsManager.sendTextMessage(phoneNumbers.get(i),null,"HELP NEEDED!\n http://www.google.com/maps/place/" + myPref.getString("Latitude","0.00") + "," + myPref.getString("Longitude","0.00"),null,null);
+            smsManager.sendTextMessage(phoneNumbers.get(i),null,"HELP NEEDED!  "+ hrv+ "\n http://www.google.com/maps/place/" + myPref.getString("Latitude","0.00") + "," + myPref.getString("Longitude","0.00"),null,null);
         }
 
     }

@@ -10,10 +10,52 @@
     tools:context=".MainActivity">
 
 
-    <Switch
-        android:id="@+id/simpleSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        >
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Callibration Mode"
+            android:textSize="16dp"
+            android:layout_marginRight="5dp"
+            >
+
+        </TextView>
+        <Switch
+            android:id="@+id/simpleSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reconnect Bluetooth"
+            android:onClick="startBtService"
+            />
+
+        <Button
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/profile_icon_foreground"
+            />
+
+    </LinearLayout>
+
+
+
+
 
     <EditText
         android:id="@+id/edit_text_input"
@@ -36,11 +78,16 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:text="Data"
+        android:text="Heart Rate Detected"
         android:id="@+id/hearrateTV"
         />
 
-
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="100dp"
+        android:text="Average Heart Rate Calibrated"
+        android:id="@+id/avgHRV"
+        />
 
 
     <Button
@@ -50,4 +97,7 @@
         android:layout_marginTop ="40dp"
 
         android:text="Send SOS " />
+
+
+
 </LinearLayout>
